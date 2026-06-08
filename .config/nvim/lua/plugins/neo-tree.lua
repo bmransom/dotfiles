@@ -18,6 +18,17 @@ return {
       hijack_netrw_behavior = "open_default",
       filtered_items = { visible = true, hide_dotfiles = false, hide_gitignored = false },
     },
-    window = { width = 32 },
+    window = {
+      width = 32,
+      mappings = {
+        -- open the file/folder under the cursor in the system default app (Preview, etc.)
+        ["O"] = function(state)
+          local node = state.tree:get_node()
+          if node then
+            vim.fn.jobstart({ "open", node:get_id() }, { detach = true })
+          end
+        end,
+      },
+    },
   },
 }
