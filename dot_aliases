@@ -15,8 +15,9 @@ alias mv="mv -i"
 # Run kubernetes commands with "k <command>"
 alias k="kubectl"
 
-# Replace ls with exa
-[ -x "$(command -v exa)" ] && alias ls="exa -al"
+# Replace ls with a modern lister (eza, fallback to exa)
+if [ -x "$(command -v eza)" ]; then alias ls="eza -al"
+elif [ -x "$(command -v exa)" ]; then alias ls="exa -al"; fi
 
 LOCAL_ALIASES=~/.aliases_local
 [ -f "$LOCAL_ALIASES" ] && source "$LOCAL_ALIASES"
