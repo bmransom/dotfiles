@@ -1,8 +1,5 @@
 #!/usr/bin/env bash
 
-# Enables use of a bare git repository to store config files
-alias dotfiles="/usr/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME"
-
 # Pretty print XML (use `jq` for json):
 alias xq="xmllint --format"
 
