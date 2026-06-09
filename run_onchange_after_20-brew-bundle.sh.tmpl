@@ -1,0 +1,15 @@
+#!/bin/sh
+# Re-run whenever any Brewfile changes (hashes embedded below):
+# shared:  {{ include "dot_homebrew/Brewfile" | sha256sum }}
+{{- if eq .chezmoi.os "darwin" }}
+# darwin:  {{ include "dot_homebrew/Brewfile.darwin" | sha256sum }}
+{{- end }}
+# profile: {{ include (printf "dot_homebrew/Brewfile.%s" .profile) | sha256sum }}
+for brewbin in /opt/homebrew/bin/brew /usr/local/bin/brew /home/linuxbrew/.linuxbrew/bin/brew; do
+  [ -x "$brewbin" ] && eval "$("$brewbin" shellenv)" && break
+done
+brew bundle --file="$HOME/.homebrew/Brewfile"
+{{ if eq .chezmoi.os "darwin" -}}
+brew bundle --file="$HOME/.homebrew/Brewfile.darwin"
+{{ end -}}
+brew bundle --file="$HOME/.homebrew/Brewfile.{{ .profile }}"
