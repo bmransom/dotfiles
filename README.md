@@ -1,18 +1,45 @@
-# Setting up dotfiles
+# Dotfiles (managed with [chezmoi](https://chezmoi.io))
 
-My dotfiles setup is based on the approach described here: https://www.atlassian.com/git/tutorials/dotfiles
+Cross-platform dotfiles for macOS (Intel + Apple Silicon) and Linux. Editor/shell config is
+identical everywhere; only the package list differs per machine via a `personal`/`work` profile.
 
-To install my dotfiles on a new system, follow these steps:
+## New machine
 
-1. Add alias to `.zshrc`: `alias dotfiles='/usr/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'`
-2. Ignore folder where dotfiles are stored to avoid weird recursion issues: `echo ".dotfiles" >> .gitignore`
-3. Clone the repo: `git clone --bare git@github.com:branransom/dotfiles.git $HOME/.dotfiles`
-4. Checkout the repo contents in `$HOME`: `dotfiles checkout`
-5. Avoid showing untracked files: `dotfiles config --local status.showUntrackedFiles no`
+```sh
+# 1. install chezmoi
+sh -c "$(curl -fsLS get.chezmoi.io)"
 
-## Installation
+# 2. one command: clone + prompt profile + apply + bootstrap
+chezmoi init --apply bmransom
+```
 
-1. Install Homebrew: `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"`
-2. Install plugins from Brewfile: `cd ~/.homebrew && brew bundle`
-3. Install oh-my-zsh: `sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"`
-4. oh-my-zsh will overwrite the existing `.zshrc`, so make sure to replace the default config
+On first run it prompts for the machine **profile** (`personal` or `work`), then:
+- installs Homebrew if missing (`run_once_before`)
+- runs `brew bundle` for the shared + OS + profile layers (`run_onchange_after`)
+- installs oh-my-zsh, tpm, and a default LTS node (`run_once_after`)
+- applies all dotfiles
+
+> Set your terminal font to a Nerd Font (e.g. **Hack Nerd Font Mono**) for editor icons.
+
+## Daily use
+
+```sh
+chezmoi edit ~/.zshrc      # edit the source, then:
+chezmoi apply              # regenerate the real file
+# — or — edit ~/.zshrc directly, then:
+chezmoi re-add             # pull the change back into the source
+
+chezmoi cd                 # drop into the source repo (normal git)
+git add -A && git commit && git push
+chezmoi update             # pull + apply on another machine
+```
+
+## Layout
+
+- `dot_*` → files in `$HOME` (e.g. `dot_zshrc` → `~/.zshrc`)
+- `dot_homebrew/Brewfile{,.darwin,.personal,.work}` → layered packages; the bundle script installs
+  shared + (darwin on macOS) + the machine's profile layer
+- `run_*` → bootstrap scripts
+- Git identity is directory-based via `~/.gitconfig` `includeIf` (personal default; work under `~/dev/lm/`)
+
+The previous bare-repo version of this repo is archived on the **`bare-repo-archive`** branch.
