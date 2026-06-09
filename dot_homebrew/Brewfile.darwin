@@ -1,0 +1,20 @@
+# macOS-only (Homebrew casks don't exist on Linux)
+cask "font-hack-nerd-font"   # terminal/editor icons (was missing)
+cask "font-iosevka"
+cask "docker"
+cask "firefox"
+cask "google-chrome"
+cask "iterm2"
+cask "maccy"
+cask "menumeters"
+cask "rectangle"
+cask "slack"
+cask "spotify"
+cask "stats"
+cask "sublime-text"
+cask "postman"
+cask "mongodb-compass"
+
+# JDK 8 (cask)
+tap "adoptopenjdk/openjdk"
+cask "adoptopenjdk8"

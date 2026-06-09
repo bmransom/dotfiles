@@ -7,6 +7,11 @@ export NVM_LAZY_LOAD=true
 # auto-switch node version on cd into a dir with an .nvmrc
 export NVM_AUTO_USE=true
 
+# Homebrew — resolve prefix across Intel mac / Apple Silicon / Linux
+for brewbin in /opt/homebrew/bin/brew /usr/local/bin/brew /home/linuxbrew/.linuxbrew/bin/brew; do
+  if [ -x "$brewbin" ]; then eval "$("$brewbin" shellenv)"; break; fi
+done
+
 # darker color for autosuggestions
 export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=60'
 
@@ -30,7 +35,7 @@ setopt auto_cd
 bindkey -v
 export KEYTIMEOUT=1
 
-export EDITOR='vim'
+export EDITOR='nvim'
 
 # Start tmux automatically
 #if [ -z "$TMUX" ]
@@ -48,7 +53,7 @@ export FZF_DEFAULT_COMMAND='rg --files --hidden --follow --glob "!{node_modules,
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 
 # PyEnv
-export PYENV_ROOT="/usr/local/opt/pyenv"
+export PYENV_ROOT="${HOMEBREW_PREFIX:-/usr/local}/opt/pyenv"
 export PATH="$PYENV_ROOT/bin:$PATH"
 if command -v pyenv 1>/dev/null 2>&1; then
   eval "$(pyenv init --path)"
@@ -57,11 +62,14 @@ fi
 # Prompt styling
 eval "$(starship init zsh)"
 
-export PATH="/usr/local/opt/sqlite/bin:$PATH"
-export LDFLAGS="-L/usr/local/opt/sqlite/lib"
-export CPPFLAGS="-I/usr/local/opt/sqlite/include"
-export PKG_CONFIG_PATH="/usr/local/opt/sqlite/lib/pkgconfig"
+export PATH="${HOMEBREW_PREFIX:-/usr/local}/opt/sqlite/bin:$PATH"
+export LDFLAGS="-L${HOMEBREW_PREFIX:-/usr/local}/opt/sqlite/lib"
+export CPPFLAGS="-I${HOMEBREW_PREFIX:-/usr/local}/opt/sqlite/include"
+export PKG_CONFIG_PATH="${HOMEBREW_PREFIX:-/usr/local}/opt/sqlite/lib/pkgconfig"
 export PATH="$HOME/.local/bin:$PATH"
 
 # Knowledge base CLI
 export PATH="$HOME/knowledge/bin:$PATH"
+
+# Smart cd (replaces z)
+eval "$(zoxide init zsh)"

@@ -1,12 +1,12 @@
+# Shared formulae — installed on every machine (mac + linux)
 brew "autoconf"
 brew "automake"
-brew "awscli"
-brew "basictex"
 brew "cmake"
-brew "exa"
+brew "eza"          # modern `ls` (replaces deprecated exa)
+brew "fd"           # required by the neovim config
 brew "fzf"
+brew "gh"           # github cli (also the git credential helper)
 brew "git-delta"
-brew "groovy"
 brew "jq"
 brew "luarocks"
 brew "neovim"
@@ -14,7 +14,6 @@ brew "nvm"
 brew "openssl"
 brew "pyenv"
 brew "python"
-brew "redis"
 brew "ripgrep"
 brew "rustup"
 brew "starship"
@@ -22,28 +21,4 @@ brew "tmux"
 brew "tree"
 brew "vim"
 brew "yq"
-
-tap "mongodb/brew"
-brew "mongodb-community"
-
-tap "homebrew/cask-fonts"
-cask "font-iosevka"
-
-tap "adoptopenjdk/openjdk"
-cask "homebrew/cask-versions/adoptopenjdk8"
-
-cask "menumeters"
-
-cask "docker"
-cask "firefox"
-cask "google-chrome"
-cask "iterm2"
-cask "maccy"
-cask "menumeters"
-cask "mongodb-compass"
-cask "postman"
-cask "rectangle"
-cask "slack"
-cask "spotify"
-cask "stats"
-cask "sublime-text"
+brew "zoxide"       # smart cd (replaces z submodule)
