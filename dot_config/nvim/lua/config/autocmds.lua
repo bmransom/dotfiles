@@ -10,7 +10,7 @@ autocmd("TextYankPost", {
 })
 
 -- reload files changed on disk (AI/Claude glue)
-autocmd({ "FocusGained", "BufEnter", "TermClose", "TermLeave" }, {
+autocmd({ "FocusGained", "BufEnter", "CursorHold", "CursorHoldI", "TermClose", "TermLeave" }, {
   group = augroup("auto_read", { clear = true }),
   command = "checktime",
 })
