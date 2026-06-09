@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+
+# Enables use of a bare git repository to store config files
+alias dotfiles="/usr/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME"
+
+# Pretty print XML (use `jq` for json):
+alias xq="xmllint --format"
+
+# Show local ip:
+alias localip="ipconfig getifaddr en0"
+
+# Prompt user if moving file to a location where a file of that name already exists
+alias mv="mv -i"
+
+# Run kubernetes commands with "k <command>"
+alias k="kubectl"
+
+# Replace ls with exa
+[ -x "$(command -v exa)" ] && alias ls="exa -al"
+
+LOCAL_ALIASES=~/.aliases_local
+[ -f "$LOCAL_ALIASES" ] && source "$LOCAL_ALIASES"
