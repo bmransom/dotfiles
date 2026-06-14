@@ -1,3 +1,14 @@
 {{- $profile := promptStringOnce . "profile" "Machine profile (personal/work)" "personal" -}}
 [data]
     profile = {{ $profile | quote }}
+
+[edit]
+    # `chezmoi edit <target>` applies to the target on quit, so edits take effect
+    # without a separate `chezmoi apply`. Use `chezmoi edit --watch` to apply on every save.
+    apply = true
+
+# Opt in if you want chezmoi to auto-commit (and/or push) source edits for you.
+# Left off by default — you manage your own commits.
+# [git]
+#     autoCommit = true
+#     autoPush = true

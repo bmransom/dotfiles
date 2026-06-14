@@ -1,1 +1,23 @@
 README.md
+
+# Claude Code (~/.claude): ignore runtime/ephemeral state, keep only authored config
+.claude/projects
+.claude/plugins
+.claude/cache
+.claude/sessions
+.claude/session-env
+.claude/shell-snapshots
+.claude/file-history
+.claude/debug
+.claude/telemetry
+.claude/backups
+.claude/downloads
+.claude/paste-cache
+.claude/todos
+.claude/tasks
+.claude/teams
+.claude/ide
+.claude/history.jsonl
+.claude/*-cache.json
+.claude/.last-*
+.claude/agent-tmp-*

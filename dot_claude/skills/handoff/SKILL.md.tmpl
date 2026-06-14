@@ -1,0 +1,47 @@
+---
+name: handoff
+description: Write a structured handoff briefing so a fresh agent can continue this work with zero prior context, then spawn the successor in tmux. Invoke with /handoff when a milestone is done and you want to pass the next steps to a new agent.
+argument-hint: [optional focus/steering, e.g. "next: implement X" or "drop the debugging tangents"]
+disable-model-invocation: true
+allowed-tools: Bash(git rev-parse:*), Bash(git branch:*), Bash(git log:*), Bash(git status:*), Bash(git diff:*), Bash(test:*), Bash(cat:*), Bash(mkdir:*), Bash({{ .chezmoi.homeDir }}/.claude/skills/handoff/scripts/handoff-spawn.sh:*), Read, Write
+---
+
+## Ground truth (auto-captured — use these exact values, never guess a hash/branch/status)
+
+- Branch: !`git branch --show-current 2>/dev/null || echo "(not a git repo)"`
+- HEAD: !`git rev-parse --short HEAD 2>/dev/null`
+- Recent commits: !`git log --oneline -8 2>/dev/null`
+- Uncommitted (working tree): !`git status --short 2>/dev/null`
+- Change size: !`git diff --stat 2>/dev/null | tail -1; git diff --cached --stat 2>/dev/null | tail -1`
+- Prior handoff: !`test -f .claude/handoff/HANDOFF.md && (echo "── EXISTING (update it, do not blindly overwrite):"; cat .claude/handoff/HANDOFF.md) || echo "(none)"`
+
+## Task
+
+Write a **handoff briefing** for a fresh agent that will resume this work in a new context window with **no memory of this conversation**. My focus/steering (optional): **$ARGUMENTS**
+
+A handoff is a **structured briefing, not a context dump** — dumping raw context degrades the next agent's reasoning. Maximize *recall* of what matters, then trim to *precision*. Every claim must be **specific and verifiable**: cite commit hashes, `file:line` anchors, exact commands, and quantifiable metrics (test counts, gate results) drawn from the ground truth above. Never write vague status ("fixed it") or invent values — if you didn't verify it this session, say so.
+
+Write these sections:
+
+1. **Mission** — the standing goal and where the single source of truth lives (roadmap / spec / issue). 1–2 lines.
+2. **State (verified)** — HEAD hash + what's committed and green; the working-tree caveat (what's uncommitted, whether to touch it); the last gate/test result *with numbers*.
+3. **What happened & why** — the key decisions and their rationale (not just outcomes); and **gotchas that bit you** (tooling failure modes, dead ends, wrong turns) so the next agent doesn't repeat them.
+4. **Next unit of work** — one specific, ordered next action; exact files / line-anchors / commands where known; scoped so it can be finished and gated in a single pass.
+5. **Open decisions** — each unresolved choice *with its options* (so the thread can be picked up without rebuilding context). Omit the section if there are none.
+6. **Guardrails** — the gate that must pass before commit, key conventions, and what NOT to do.
+7. **Done when** — the exact command(s) and the expected output that mean the unit is complete.
+
+Then **write the briefing to `.claude/handoff/HANDOFF.md`** (create the directory if needed) as durable external memory, and **print it** so I can paste it into a fresh session. Keep it tight — a cold agent should be able to resume safely from a page or two, well under a few thousand tokens.
+
+## Then launch the successor
+
+After the briefing is written to `.claude/handoff/HANDOFF.md` and printed
+(always do this first — the content must never be lost), hand off to a fresh agent:
+
+1. Derive a **slug** from the briefing's "Next unit of work": lowercase,
+   kebab-case, 2–3 words, ≤ ~20 chars (e.g. "wire LP variable bounds" → `lp-bounds`).
+2. Run: `${CLAUDE_SKILL_DIR}/scripts/handoff-spawn.sh "<slug>"`
+   - Inside tmux → opens the successor in a **background window** (`prefix + w` to visit).
+   - tmux installed but detached → creates a **detached session** and prints the attach command.
+   - No tmux → prints a note; paste the briefing above into a fresh `claude`.
+3. Print the script's outcome line to me verbatim (e.g. `spawned window: lp-bounds`).
