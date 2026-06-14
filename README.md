@@ -1,45 +1,50 @@
-# Dotfiles (managed with [chezmoi](https://chezmoi.io))
+# Dotfiles
 
-Cross-platform dotfiles for macOS (Intel + Apple Silicon) and Linux. Editor/shell config is
-identical everywhere; only the package list differs per machine via a `personal`/`work` profile.
+Cross-platform config for macOS (Intel and Apple Silicon) and Linux, managed with
+[chezmoi](https://chezmoi.io). Editor and shell config stay identical across machines; only the
+package list differs, set by a `personal` or `work` profile.
 
-## New machine
-
-```sh
-# 1. install chezmoi
-sh -c "$(curl -fsLS get.chezmoi.io)"
-
-# 2. one command: clone + prompt profile + apply + bootstrap
-chezmoi init --apply bmransom
-```
-
-On first run it prompts for the machine **profile** (`personal` or `work`), then:
-- installs Homebrew if missing (`run_once_before`)
-- runs `brew bundle` for the shared + OS + profile layers (`run_onchange_after`)
-- installs oh-my-zsh, tpm, and a default LTS node (`run_once_after`)
-- applies all dotfiles
-
-> Set your terminal font to a Nerd Font (e.g. **Hack Nerd Font Mono**) for editor icons.
-
-## Daily use
+## Set up a new machine
 
 ```sh
-chezmoi edit ~/.zshrc      # edit the source, then:
-chezmoi apply              # regenerate the real file
-# — or — edit ~/.zshrc directly, then:
-chezmoi re-add             # pull the change back into the source
-
-chezmoi cd                 # drop into the source repo (normal git)
-git add -A && git commit && git push
-chezmoi update             # pull + apply on another machine
+sh -c "$(curl -fsLS get.chezmoi.io)"   # install chezmoi
+chezmoi init --apply bmransom          # clone, prompt for profile, bootstrap, apply
 ```
+
+The first run asks for the machine **profile** (`personal` or `work`), then:
+
+- installs Homebrew if missing (`run_once_before`),
+- runs `brew bundle` across the shared, OS, and profile layers (`run_onchange_after`),
+- installs oh-my-zsh, tpm, and a default LTS Node (`run_once_after`),
+- applies every dotfile.
+
+Set the terminal font to a Nerd Font (for example **Hack Nerd Font Mono**) so editor icons render.
+
+## Edit and sync
+
+Edits apply to your home directory on save, because `edit.apply = true`:
+
+```sh
+chezmoi edit ~/.zshrc          # opens the source; applies on quit
+chezmoi edit --watch ~/.zshrc  # applies on every save, useful while iterating
+chezmoi cd                     # enter the source repo; commit and push as usual
+chezmoi update                 # pull and apply on another machine
+```
+
+Edit the source through `chezmoi edit`, never the deployed file. `chezmoi re-add` skips templates
+such as `dot_claude/skills/handoff/SKILL.md.tmpl`, so editing a target directly and re-adding would
+drop those changes. Run `chezmoi status` to catch drift. To commit and push every edit
+automatically, uncomment the `[git]` block in `.chezmoi.toml.tmpl`.
 
 ## Layout
 
-- `dot_*` → files in `$HOME` (e.g. `dot_zshrc` → `~/.zshrc`)
+- `dot_*` → files in `$HOME` (`dot_zshrc` → `~/.zshrc`).
 - `dot_homebrew/Brewfile{,.darwin,.personal,.work}` → layered packages; the bundle script installs
-  shared + (darwin on macOS) + the machine's profile layer
-- `run_*` → bootstrap scripts
-- Git identity is directory-based via `~/.gitconfig` `includeIf` (personal default; work under `~/dev/lm/`)
+  the shared layer, then darwin on macOS, then the machine's profile layer.
+- `dot_claude/` → Claude Code config in `~/.claude`, including the `/handoff` skill. Runtime state
+  (`projects/`, `plugins/`, caches) stays out of the repo via `.chezmoiignore`.
+- `run_*` → bootstrap scripts.
+- Git identity is directory-based through `~/.gitconfig` `includeIf`: personal by default, work
+  under `~/dev/lm/`.
 
-The previous bare-repo version of this repo is archived on the **`bare-repo-archive`** branch.
+The earlier bare-repo version lives on the **`bare-repo-archive`** branch.
