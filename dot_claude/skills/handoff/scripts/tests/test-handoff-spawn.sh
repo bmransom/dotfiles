@@ -72,6 +72,17 @@ out=$(env -u CLAUDE_EFFORT TMUX=fake "$SCRIPT" --dry-run --effort bogus lp-bound
 assert_contains "$out" "invalid --effort" "rejects an unknown effort level"
 assert_eq "$rc" "2" "invalid effort exits non-zero"
 
+echo "model — override only (dry-run):"
+out=$(env -u CLAUDE_EFFORT TMUX=fake "$SCRIPT" --dry-run lp-bounds /tmp/proj 2>&1)
+assert_not_contains "$out" "--model" "no model flag by default"
+out=$(env -u CLAUDE_EFFORT TMUX=fake "$SCRIPT" --dry-run --model sonnet lp-bounds /tmp/proj 2>&1)
+assert_contains "$out" "--model 'sonnet'" "--model passes the model through"
+out=$(env -u CLAUDE_EFFORT TMUX=fake HANDOFF_MODEL=opus "$SCRIPT" --dry-run lp-bounds /tmp/proj 2>&1)
+assert_contains "$out" "--model 'opus'" "HANDOFF_MODEL sets the model"
+out=$(env -u CLAUDE_EFFORT TMUX=fake HANDOFF_MODEL=opus "$SCRIPT" --dry-run --model sonnet lp-bounds /tmp/proj 2>&1)
+assert_contains "$out" "--model 'sonnet'" "--model flag overrides HANDOFF_MODEL"
+assert_not_contains "$out" "'opus'" "flag replaces env model"
+
 tmux -L "$SOCK" kill-server 2>/dev/null || true
 echo
 [ "$fail" -eq 0 ] && echo "ALL PASS" || { echo "FAILURES"; exit 1; }

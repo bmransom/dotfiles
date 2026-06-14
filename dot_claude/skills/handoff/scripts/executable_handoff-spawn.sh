@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # handoff-spawn.sh — launch a fresh Claude Code successor seeded from a handoff briefing.
 #
-# Usage: handoff-spawn.sh [--dry-run] [--skip-permissions] [--effort LEVEL] <slug> [project-dir]
+# Usage: handoff-spawn.sh [--dry-run] [--skip-permissions] [--effort LEVEL] [--model NAME] <slug> [project-dir]
 #   <slug>        short context name for the successor (window or session name)
 #   project-dir   working directory for the successor (default: current dir)
 #
@@ -12,6 +12,9 @@
 #   --effort LEVEL                        reasoning effort (low|medium|high|xhigh|max).
 #                                         Defaults to the parent's CLAUDE_EFFORT; override with
 #                                         the flag or HANDOFF_EFFORT=LEVEL.
+#   --model NAME                          model alias or id (sonnet|opus|haiku|fable|...).
+#                                         Override only; default is the successor's own default.
+#                                         Env: HANDOFF_MODEL=NAME
 #
 # Environment detection:
 #   inside a tmux session     -> new background window (prefix+w to visit)
@@ -44,13 +47,15 @@ dedupe() {
 }
 
 main() {
-  local dry_run=0 skip_perms=0 effort=""
+  local dry_run=0 skip_perms=0 effort="" model=""
   while true; do
     case "${1:-}" in
       --dry-run)                  dry_run=1; shift;;
       --skip-permissions|--yolo)  skip_perms=1; shift;;
       --effort)                   effort="${2:?--effort requires a level}"; shift 2;;
       --effort=*)                 effort="${1#--effort=}"; shift;;
+      --model)                    model="${2:?--model requires a name}"; shift 2;;
+      --model=*)                  model="${1#--model=}"; shift;;
       --)                         shift; break;;
       *)                          break;;
     esac
@@ -60,6 +65,8 @@ main() {
   # effort precedence: --effort flag > HANDOFF_EFFORT > inherited CLAUDE_EFFORT (parent's current)
   [ -z "$effort" ] && effort="${HANDOFF_EFFORT:-}"
   [ -z "$effort" ] && effort="${CLAUDE_EFFORT:-}"
+  # model precedence: --model flag > HANDOFF_MODEL (no parent inherit — model isn't exported)
+  [ -z "$model" ] && model="${HANDOFF_MODEL:-}"
   if [ -n "$effort" ]; then
     case "$effort" in
       low|medium|high|xhigh|max) ;;
@@ -67,7 +74,7 @@ main() {
     esac
   fi
 
-  local slug="${1:?usage: handoff-spawn.sh [--dry-run] [--skip-permissions] [--effort LEVEL] <slug> [project-dir]}"
+  local slug="${1:?usage: handoff-spawn.sh [--dry-run] [--skip-permissions] [--effort LEVEL] [--model NAME] <slug> [project-dir]}"
   local dir="${2:-$PWD}"
 
   local -a tmux_bin
@@ -77,6 +84,8 @@ main() {
   local claude_opts=""
   [ "$skip_perms" -eq 1 ] && claude_opts+=" --dangerously-skip-permissions"
   [ -n "$effort" ] && claude_opts+=" --effort $effort"
+  # quote model: alias variants like opus[1m] contain shell glob metacharacters
+  [ -n "$model" ] && claude_opts+=" --model '$model'"
   local pane_cmd="claude${claude_opts} '$SEED_PROMPT'"
 
   emit() { # print (dry-run) or execute a command
