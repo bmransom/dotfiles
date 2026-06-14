@@ -17,6 +17,10 @@ assert_eq() { # <got> <want> <msg>
   if [ "$1" = "$2" ]; then echo "  ok: $3"
   else echo "  FAIL: $3 (got '$1' want '$2')"; fail=1; fi
 }
+assert_not_contains() { # <haystack> <needle> <msg>
+  if [[ "$1" != *"$2"* ]]; then echo "  ok: $3"
+  else echo "  FAIL: $3"; echo "    unexpected substring: $2"; echo "    in: $1"; fail=1; fi
+}
 
 # fresh isolated server
 tmux -L "$SOCK" kill-server 2>/dev/null || true
@@ -43,6 +47,30 @@ assert_contains "$out" "attach with:" "prints the attach hint"
 echo "no-tmux branch (simulated via override to a missing binary):"
 out=$(env -u TMUX HANDOFF_TMUX="tmux-does-not-exist-xyz" "$SCRIPT" --dry-run lp-bounds 2>&1)
 assert_contains "$out" "tmux not found" "falls back to paste note"
+
+echo "skip-permissions — default off, opt-in (dry-run):"
+out=$(env -u CLAUDE_EFFORT TMUX=fake "$SCRIPT" --dry-run lp-bounds /tmp/proj 2>&1)
+assert_not_contains "$out" "--dangerously-skip-permissions" "default does not skip permissions"
+out=$(env -u CLAUDE_EFFORT TMUX=fake "$SCRIPT" --dry-run --skip-permissions lp-bounds /tmp/proj 2>&1)
+assert_contains "$out" "claude --dangerously-skip-permissions" "--skip-permissions adds the flag"
+out=$(env -u CLAUDE_EFFORT TMUX=fake "$SCRIPT" --dry-run --yolo lp-bounds /tmp/proj 2>&1)
+assert_contains "$out" "--dangerously-skip-permissions" "--yolo aliases --skip-permissions"
+out=$(env -u CLAUDE_EFFORT TMUX=fake HANDOFF_SKIP_PERMISSIONS=1 "$SCRIPT" --dry-run lp-bounds /tmp/proj 2>&1)
+assert_contains "$out" "--dangerously-skip-permissions" "HANDOFF_SKIP_PERMISSIONS=1 enables skip"
+
+echo "effort — inherits parent CLAUDE_EFFORT by default (dry-run):"
+out=$(env -u CLAUDE_EFFORT TMUX=fake "$SCRIPT" --dry-run lp-bounds /tmp/proj 2>&1)
+assert_not_contains "$out" "--effort" "no effort flag when the parent's effort is unset"
+out=$(CLAUDE_EFFORT=high TMUX=fake "$SCRIPT" --dry-run lp-bounds /tmp/proj 2>&1)
+assert_contains "$out" "--effort high" "inherits the parent's CLAUDE_EFFORT by default"
+out=$(CLAUDE_EFFORT=high TMUX=fake "$SCRIPT" --dry-run --effort low lp-bounds /tmp/proj 2>&1)
+assert_contains "$out" "--effort low" "--effort flag overrides inherited effort"
+assert_not_contains "$out" "--effort high" "inherited effort is replaced, not appended"
+out=$(CLAUDE_EFFORT=high HANDOFF_EFFORT=max TMUX=fake "$SCRIPT" --dry-run lp-bounds /tmp/proj 2>&1)
+assert_contains "$out" "--effort max" "HANDOFF_EFFORT overrides inherited effort"
+out=$(env -u CLAUDE_EFFORT TMUX=fake "$SCRIPT" --dry-run --effort bogus lp-bounds /tmp/proj 2>&1); rc=$?
+assert_contains "$out" "invalid --effort" "rejects an unknown effort level"
+assert_eq "$rc" "2" "invalid effort exits non-zero"
 
 tmux -L "$SOCK" kill-server 2>/dev/null || true
 echo

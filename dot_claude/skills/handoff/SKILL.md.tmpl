@@ -44,4 +44,12 @@ After the briefing is written to `.claude/handoff/HANDOFF.md` and printed
    - Inside tmux → opens the successor in a **background window** (`prefix + w` to visit).
    - tmux installed but detached → creates a **detached session** and prints the attach command.
    - No tmux → prints a note; paste the briefing above into a fresh `claude`.
+
+   By default the successor **inherits my current effort** (`CLAUDE_EFFORT`) and my
+   settings-based permission mode. Add a flag before `"<slug>"` only to change that, and only
+   when I ask:
+   - `--effort <low|medium|high|xhigh|max>` — override the successor's effort (raise it for a hard
+     next step, lower it for a routine one).
+   - `--skip-permissions` — run the successor with `--dangerously-skip-permissions` (no approval
+     prompts). Use only for an autonomous/unattended handoff in a trusted repo.
 3. Print the script's outcome line to me verbatim (e.g. `spawned window: lp-bounds`).

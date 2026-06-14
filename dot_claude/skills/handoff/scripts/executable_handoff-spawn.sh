@@ -1,9 +1,17 @@
 #!/usr/bin/env bash
 # handoff-spawn.sh — launch a fresh Claude Code successor seeded from a handoff briefing.
 #
-# Usage: handoff-spawn.sh [--dry-run] <slug> [project-dir]
+# Usage: handoff-spawn.sh [--dry-run] [--skip-permissions] [--effort LEVEL] <slug> [project-dir]
 #   <slug>        short context name for the successor (window or session name)
 #   project-dir   working directory for the successor (default: current dir)
+#
+# Successor options:
+#   --skip-permissions  (alias --yolo)   run with --dangerously-skip-permissions (no approval
+#                                         prompts) — opt-in, trusted repos only.
+#                                         Env: HANDOFF_SKIP_PERMISSIONS=1
+#   --effort LEVEL                        reasoning effort (low|medium|high|xhigh|max).
+#                                         Defaults to the parent's CLAUDE_EFFORT; override with
+#                                         the flag or HANDOFF_EFFORT=LEVEL.
 #
 # Environment detection:
 #   inside a tmux session     -> new background window (prefix+w to visit)
@@ -36,14 +44,40 @@ dedupe() {
 }
 
 main() {
-  local dry_run=0
-  if [ "${1:-}" = "--dry-run" ]; then dry_run=1; shift; fi
-  local slug="${1:?usage: handoff-spawn.sh [--dry-run] <slug> [project-dir]}"
+  local dry_run=0 skip_perms=0 effort=""
+  while true; do
+    case "${1:-}" in
+      --dry-run)                  dry_run=1; shift;;
+      --skip-permissions|--yolo)  skip_perms=1; shift;;
+      --effort)                   effort="${2:?--effort requires a level}"; shift 2;;
+      --effort=*)                 effort="${1#--effort=}"; shift;;
+      --)                         shift; break;;
+      *)                          break;;
+    esac
+  done
+  # env fallbacks, used only when the matching flag is absent
+  case "${HANDOFF_SKIP_PERMISSIONS:-}" in 1|true|yes) skip_perms=1;; esac
+  # effort precedence: --effort flag > HANDOFF_EFFORT > inherited CLAUDE_EFFORT (parent's current)
+  [ -z "$effort" ] && effort="${HANDOFF_EFFORT:-}"
+  [ -z "$effort" ] && effort="${CLAUDE_EFFORT:-}"
+  if [ -n "$effort" ]; then
+    case "$effort" in
+      low|medium|high|xhigh|max) ;;
+      *) echo "handoff-spawn: invalid --effort '$effort' (use low|medium|high|xhigh|max)" >&2; exit 2;;
+    esac
+  fi
+
+  local slug="${1:?usage: handoff-spawn.sh [--dry-run] [--skip-permissions] [--effort LEVEL] <slug> [project-dir]}"
   local dir="${2:-$PWD}"
 
   local -a tmux_bin
   read -r -a tmux_bin <<< "${HANDOFF_TMUX:-tmux}"
-  local pane_cmd="claude '$SEED_PROMPT'"
+
+  # assemble the successor command with any opt-in flags before the seed prompt
+  local claude_opts=""
+  [ "$skip_perms" -eq 1 ] && claude_opts+=" --dangerously-skip-permissions"
+  [ -n "$effort" ] && claude_opts+=" --effort $effort"
+  local pane_cmd="claude${claude_opts} '$SEED_PROMPT'"
 
   emit() { # print (dry-run) or execute a command
     if [ "$dry_run" -eq 1 ]; then printf '%s\n' "$*"; else "$@"; fi
