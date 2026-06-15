@@ -37,12 +37,6 @@ export KEYTIMEOUT=1
 
 export EDITOR='nvim'
 
-# Start tmux automatically
-#if [ -z "$TMUX" ]
-#then
-#    tmux attach -t TMUX || tmux new -s TMUX
-#fi
-
 # History navigation
 bindkey '^P' up-history
 bindkey '^N' down-history
@@ -73,3 +67,9 @@ export PATH="$HOME/knowledge/bin:$PATH"
 
 # Smart cd (replaces z)
 eval "$(zoxide init zsh)"
+
+# Interactive tmux session picker (defined in ~/.tools/tmux-startup.sh).
+# Guard: interactive shell, real TTY, not already inside tmux, not VS Code's terminal.
+if [[ -o interactive ]] && [[ -t 1 ]] && [[ -z "$TMUX" ]] && [[ "$TERM_PROGRAM" != "vscode" ]]; then
+  tmux_session_picker
+fi

@@ -21,3 +21,6 @@ README.md
 .claude/*-cache.json
 .claude/.last-*
 .claude/agent-tmp-*
+
+# test files live in the repo but are not deployed to $HOME
+tests
