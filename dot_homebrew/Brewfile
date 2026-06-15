@@ -19,6 +19,7 @@ brew "rustup"
 brew "starship"
 brew "tmux"
 brew "tree"
+brew "tree-sitter-cli" # nvim-treesitter `main` compiles parsers via this CLI
 brew "vim"
 brew "yq"
 brew "zoxide"       # smart cd (replaces z submodule)
