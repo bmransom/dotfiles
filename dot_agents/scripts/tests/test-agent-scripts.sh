@@ -3,6 +3,7 @@
 set -uo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+SOURCE_ROOT="$(cd "$ROOT/.." && pwd)"
 script_path() {
   local name="$1"
   if [ -x "$ROOT/scripts/$name" ]; then printf '%s\n' "$ROOT/scripts/$name"; return; fi
@@ -28,6 +29,11 @@ assert_eq() {
   else echo "  FAIL: $3 (got '$1' want '$2')"; fail=1; fi
 }
 
+assert_file() {
+  if [ -f "$1" ]; then echo "  ok: $2"
+  else echo "  FAIL: $2"; echo "    missing file: $1"; fail=1; fi
+}
+
 echo "validate-skills:"
 out="$("$VALIDATE" 2>&1)"; rc=$?
 assert_eq "$rc" "0" "valid skill tree exits zero"
@@ -49,6 +55,16 @@ out="$("$INSTALL" --dry-run --harness all 2>&1)"; rc=$?
 assert_eq "$rc" "0" "all dry-run exits zero"
 assert_contains "$out" "harness: claude" "all includes claude"
 assert_contains "$out" "harness: codex" "all includes codex"
+
+echo "chezmoi onchange hook:"
+HOOK="$SOURCE_ROOT/run_onchange_after_40-agent-skills.sh.tmpl"
+assert_file "$HOOK" "agent skills install hook exists"
+if [ -f "$HOOK" ]; then
+  out="$(chezmoi execute-template --file "$HOOK" 2>&1)"; rc=$?
+  assert_eq "$rc" "0" "agent skills install hook renders"
+  assert_contains "$out" '--harness all' "hook installs all harnesses"
+  assert_contains "$out" 'dot_agents hash:' "hook is keyed on dot_agents content"
+fi
 
 echo
 [ "$fail" -eq 0 ] && echo "ALL PASS" || { echo "FAILURES"; exit 1; }

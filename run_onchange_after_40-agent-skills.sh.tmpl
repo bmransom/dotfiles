@@ -1,0 +1,12 @@
+#!/bin/sh
+# Re-run whenever generic agent skills, scripts, or harness mappings change.
+# dot_agents hash: {{ output "sh" "-c" "cd \"$1\" && find dot_agents -type f -print | LC_ALL=C sort | while IFS= read -r file; do if command -v sha256sum >/dev/null 2>&1; then sha256sum \"$file\"; else shasum -a 256 \"$file\"; fi; done | if command -v sha256sum >/dev/null 2>&1; then sha256sum; else shasum -a 256; fi | awk '{print $1}'" "sh" .chezmoi.sourceDir | trim }}
+set -eu
+
+installer="$HOME/.agents/scripts/install-skills.sh"
+if [ ! -x "$installer" ]; then
+  echo "agent skills installer not found: $installer" >&2
+  exit 1
+fi
+
+"$installer" --harness all
