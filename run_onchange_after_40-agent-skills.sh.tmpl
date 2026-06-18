@@ -1,6 +1,7 @@
 #!/bin/sh
-# Re-run whenever generic agent skills, scripts, or harness mappings change.
+# Re-run whenever agent install glue or the local Foundry skill checkout changes.
 # dot_agents hash: {{ output "sh" "-c" "cd \"$1\" && find dot_agents -type f -print | LC_ALL=C sort | while IFS= read -r file; do if command -v sha256sum >/dev/null 2>&1; then sha256sum \"$file\"; else shasum -a 256 \"$file\"; fi; done | if command -v sha256sum >/dev/null 2>&1; then sha256sum; else shasum -a 256; fi | awk '{print $1}'" "sh" .chezmoi.sourceDir | trim }}
+# foundry skills hash: {{ output "sh" "-c" "dir=\"$1/dev/workspace/foundry/plugins/foundry/skills\"; if [ ! -d \"$dir\" ]; then printf 'missing'; exit 0; fi; find \"$dir\" -type f -print | LC_ALL=C sort | while IFS= read -r file; do if command -v sha256sum >/dev/null 2>&1; then sha256sum \"$file\"; else shasum -a 256 \"$file\"; fi; done | if command -v sha256sum >/dev/null 2>&1; then sha256sum; else shasum -a 256; fi | awk '{print $1}'" "sh" .chezmoi.homeDir | trim }}
 set -eu
 
 installer="$HOME/.agents/scripts/install-skills.sh"

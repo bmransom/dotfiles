@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# validate-skills.sh - validate generic Agent Skills under ~/.agents/skills.
+# validate-skills.sh - validate Foundry-owned Agent Skills.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
-SKILLS_DIR="${AGENT_SKILLS_DIR:-$ROOT/skills}"
+SKILLS_DIR="${AGENT_SOURCE_SKILLS_DIR:-${FOUNDRY_SKILLS_DIR:-$HOME/dev/workspace/foundry/plugins/foundry/skills}}"
 fail=0
 
 err() {

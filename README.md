@@ -31,21 +31,22 @@ chezmoi cd                     # enter the source repo; commit and push as usual
 chezmoi update                 # pull and apply on another machine
 ```
 
-Edit the source through `chezmoi edit`, never the deployed file. Agent skills are authored in
-`dot_agents/skills`; `run_onchange_after_40-agent-skills.sh.tmpl` runs the skill installer whenever
-`dot_agents/` changes, exposing skills to harness-specific locations such as `~/.claude/skills`.
-Run `chezmoi status` to catch drift. To commit and push every edit automatically, uncomment the
-`[git]` block in `.chezmoi.toml.tmpl`.
+Edit the source through `chezmoi edit`, never the deployed file. AI engineering skills are authored
+in Foundry (`~/dev/workspace/foundry/plugins/foundry/skills`). This repo keeps only the local
+installation glue: `run_onchange_after_40-agent-skills.sh.tmpl` runs the skill installer whenever
+the glue or local Foundry skill checkout changes, exposing skills to harness-specific locations
+such as `~/.agents/skills` and `~/.claude/skills`. Run `chezmoi status` to catch drift. To commit
+and push every edit automatically, uncomment the `[git]` block in `.chezmoi.toml.tmpl`.
 
 ## Layout
 
 - `dot_*` → files in `$HOME` (`dot_zshrc` → `~/.zshrc`).
 - `dot_homebrew/Brewfile{,.darwin,.personal,.work}` → layered packages; the bundle script installs
   the shared layer, then darwin on macOS, then the machine's profile layer.
-- `dot_agents/` → harness-agnostic agent skills in `~/.agents`, plus install/validation scripts.
-  Claude, Codex, and Pi support lives in `dot_agents/harnesses.toml`; harness-specific copies or
-  symlinks are generated automatically on apply by `run_onchange_after_40-agent-skills.sh.tmpl` or
-  manually by `dot_agents/scripts/install-skills.sh`.
+- `dot_agents/` → local agent-skill install/validation scripts. Foundry owns the AI skill bodies;
+  Claude, Codex, and Pi support lives in `dot_agents/harnesses.toml`; harness-specific symlinks are
+  generated automatically on apply by `run_onchange_after_40-agent-skills.sh.tmpl` or manually by
+  `dot_agents/scripts/install-skills.sh`.
 - `dot_claude/` → Claude Code config in `~/.claude`. Personal skills are not authored here; expose
   the generic skills with the installer. Runtime state (`projects/`, `plugins/`, caches) stays out
   of the repo via `.chezmoiignore`.

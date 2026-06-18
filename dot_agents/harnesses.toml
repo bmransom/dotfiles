@@ -1,20 +1,23 @@
 [harnesses.claude]
 skill_root = "~/.claude/skills"
 install = "link"
+source_root = "~/dev/workspace/foundry/plugins/foundry/skills"
 commands = ["claude"]
 detect_env = ["CLAUDECODE", "CLAUDE_SESSION_ID"]
 detect_process = ["claude"]
 
 [harnesses.codex]
 skill_root = "~/.agents/skills"
-install = "native"
+install = "link"
+source_root = "~/dev/workspace/foundry/plugins/foundry/skills"
 commands = ["codex"]
 detect_env = ["CODEX_THREAD_ID", "CODEX_CI"]
 detect_process = ["codex"]
 
 [harnesses.pi]
 skill_root = "~/.agents/skills"
-install = "native"
+install = "link"
+source_root = "~/dev/workspace/foundry/plugins/foundry/skills"
 commands = ["pi", "pi-coding-agent"]
 detect_env = ["PI_SESSION_ID", "PI_AGENT"]
 detect_process = ["pi", "pi-coding-agent"]

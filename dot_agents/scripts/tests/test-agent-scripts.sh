@@ -12,6 +12,7 @@ script_path() {
 }
 VALIDATE="$(script_path validate-skills.sh)"
 INSTALL="$(script_path install-skills.sh)"
+FOUNDRY_SKILLS_DIR="${FOUNDRY_SKILLS_DIR:-$HOME/dev/workspace/foundry/plugins/foundry/skills}"
 fail=0
 
 assert_contains() {
@@ -45,12 +46,19 @@ out="$("$INSTALL" --dry-run --harness claude 2>&1)"; rc=$?
 assert_eq "$rc" "0" "claude dry-run exits zero"
 assert_contains "$out" "link" "claude strategy links skills"
 assert_contains "$out" ".claude/skills/handoff" "claude target includes handoff"
-assert_contains "$out" ".claude/skills/reference-gap-profiling" "claude target includes reference-gap-profiling"
+assert_contains "$out" ".claude/skills/performance" "claude target includes performance"
+assert_contains "$out" ".claude/skills/naming-standards" "claude target includes naming-standards"
+assert_contains "$out" ".claude/skills/design-patterns" "claude target includes design-patterns"
+assert_contains "$out" ".claude/skills/modular-structure" "claude target includes modular-structure"
+assert_contains "$out" ".claude/skills/code" "claude target includes foundry code lifecycle"
+assert_not_contains "$out" "link: $HOME/.claude/skills/reference-gap-profiling" "reference-gap-profiling is not installed as a standalone skill"
+assert_not_contains "$out" "link: $HOME/.claude/skills/performance-comparison" "performance-comparison is not installed as a standalone skill"
 
 out="$("$INSTALL" --dry-run --harness codex 2>&1)"; rc=$?
 assert_eq "$rc" "0" "codex dry-run exits zero"
-assert_contains "$out" "native" "codex strategy uses native root"
+assert_contains "$out" "link" "codex strategy links foundry skills into native root"
 assert_contains "$out" ".agents/skills" "codex target is generic agent root"
+assert_contains "$out" "$FOUNDRY_SKILLS_DIR" "codex source is foundry skills"
 
 out="$("$INSTALL" --dry-run --harness all 2>&1)"; rc=$?
 assert_eq "$rc" "0" "all dry-run exits zero"
