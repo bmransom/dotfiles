@@ -1,0 +1,14 @@
+[
+  {
+    "prompt": "System A is 8x slower than reference B on the same workload. We have B's source locally. Explain why.",
+    "expected": "Requires a fair baseline, instruments the reference before guessing, normalizes to a per-unit metric, and reads both implementations before attributing the cause."
+  },
+  {
+    "prompt": "A flamegraph from one small case shows allocator time. Should we prioritize an allocator rewrite?",
+    "expected": "Treats the slice as a hypothesis, asks for representative evidence, checks production-path fidelity, and separates ranking from explanation."
+  },
+  {
+    "prompt": "Reference logs expose per-operation counters, but our local run only has wall time. What next?",
+    "expected": "Adds or enables comparable local counters/traces, maps equivalent operations cautiously, and records unmapped work and caveats."
+  }
+]

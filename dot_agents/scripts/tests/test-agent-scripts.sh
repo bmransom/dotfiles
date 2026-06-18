@@ -45,6 +45,7 @@ out="$("$INSTALL" --dry-run --harness claude 2>&1)"; rc=$?
 assert_eq "$rc" "0" "claude dry-run exits zero"
 assert_contains "$out" "link" "claude strategy links skills"
 assert_contains "$out" ".claude/skills/handoff" "claude target includes handoff"
+assert_contains "$out" ".claude/skills/reference-gap-profiling" "claude target includes reference-gap-profiling"
 
 out="$("$INSTALL" --dry-run --harness codex 2>&1)"; rc=$?
 assert_eq "$rc" "0" "codex dry-run exits zero"
@@ -58,12 +59,14 @@ assert_contains "$out" "harness: codex" "all includes codex"
 
 echo "chezmoi onchange hook:"
 HOOK="$SOURCE_ROOT/run_onchange_after_40-agent-skills.sh.tmpl"
-assert_file "$HOOK" "agent skills install hook exists"
-if [ -f "$HOOK" ]; then
+if [ -d "$SOURCE_ROOT/dot_agents" ]; then
+  assert_file "$HOOK" "agent skills install hook exists"
   out="$(chezmoi execute-template --file "$HOOK" 2>&1)"; rc=$?
   assert_eq "$rc" "0" "agent skills install hook renders"
   assert_contains "$out" '--harness all' "hook installs all harnesses"
   assert_contains "$out" 'dot_agents hash:' "hook is keyed on dot_agents content"
+else
+  echo "  ok: source-only hook check skipped outside chezmoi source"
 fi
 
 echo
