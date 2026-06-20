@@ -8,8 +8,8 @@
 for brewbin in /opt/homebrew/bin/brew /usr/local/bin/brew /home/linuxbrew/.linuxbrew/bin/brew; do
   [ -x "$brewbin" ] && eval "$("$brewbin" shellenv)" && break
 done
-brew bundle --file="$HOME/.homebrew/Brewfile"
+brew bundle --no-upgrade --file="$HOME/.homebrew/Brewfile"
 {{ if eq .chezmoi.os "darwin" -}}
-brew bundle --file="$HOME/.homebrew/Brewfile.darwin"
+brew bundle --no-upgrade --file="$HOME/.homebrew/Brewfile.darwin"
 {{ end -}}
-brew bundle --file="$HOME/.homebrew/Brewfile.{{ .profile }}"
+brew bundle --no-upgrade --file="$HOME/.homebrew/Brewfile.{{ .profile }}"
