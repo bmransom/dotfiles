@@ -1,0 +1,10 @@
+# Third-party zsh plugins, cloned into $HOME on `chezmoi apply` and
+# refreshed weekly. Sourced from ~/.zshrc.
+[".zsh/plugins/zsh-autosuggestions"]
+  type = "git-repo"
+  url = "https://github.com/zsh-users/zsh-autosuggestions.git"
+  refreshPeriod = "168h"
+  [".zsh/plugins/zsh-autosuggestions".clone]
+    args = ["--depth=1"]
+  [".zsh/plugins/zsh-autosuggestions".pull]
+    args = ["--ff-only"]

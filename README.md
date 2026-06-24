@@ -14,7 +14,8 @@ The first run asks for the machine **profile** (`personal` or `work`), then:
 
 - installs Homebrew if missing (`run_once_before`),
 - runs `brew bundle` across the shared, OS, and profile layers (`run_onchange_after`),
-- installs oh-my-zsh, tpm, and a default LTS Node (`run_once_after`),
+- installs tpm (`run_once_after`),
+- clones third-party zsh plugins declared in `.chezmoiexternal.toml`,
 - applies every dotfile.
 
 Set the terminal font to a Nerd Font (for example **Hack Nerd Font Mono**) so editor icons render.

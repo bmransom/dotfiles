@@ -1,23 +1,44 @@
-export ZSH="$HOME/.oh-my-zsh"
-export NVM_DIR="$HOME/.nvm"
-
-# nvm was taking forever to load every time I opened a new shell
-export NVM_LAZY_LOAD=true
-
-# auto-switch node version on cd into a dir with an .nvmrc
-export NVM_AUTO_USE=true
-
 # Homebrew — resolve prefix across Intel mac / Apple Silicon / Linux
+# (runs early: it puts Homebrew's completions on FPATH for compinit below)
 for brewbin in /opt/homebrew/bin/brew /usr/local/bin/brew /home/linuxbrew/.linuxbrew/bin/brew; do
   if [ -x "$brewbin" ]; then eval "$("$brewbin" shellenv)"; break; fi
 done
 
-# darker color for autosuggestions
-export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=60'
+# ── Completion ──────────────────────────────────────────────────────
+# Native zsh completion (replaces oh-my-zsh). Rebuild the dump at most
+# once a day; otherwise load it fast with -C (skips the security check).
+autoload -Uz compinit
+if [[ -n ${ZDOTDIR:-$HOME}/.zcompdump(#qN.mh+24) ]]; then
+  compinit
+else
+  compinit -C
+fi
+zstyle ':completion:*' menu select
+zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'   # case-insensitive
+zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
+zstyle ':completion:*' use-cache on
+zstyle ':completion:*' cache-path "${XDG_CACHE_HOME:-$HOME/.cache}/zsh/zcompcache"
 
-plugins=(zsh-nvm zsh-autosuggestions)
+# ── History ─────────────────────────────────────────────────────────
+HISTFILE="$HOME/.zsh_history"
+HISTSIZE=50000
+SAVEHIST=10000
+setopt extended_history hist_expire_dups_first hist_ignore_dups \
+       hist_ignore_space hist_reduce_blanks hist_verify \
+       share_history inc_append_history
 
-source $ZSH/oh-my-zsh.sh
+# ── Terminal title (cwd at the prompt, command while it runs) ────────
+autoload -Uz add-zsh-hook
+_title_precmd()  { print -Pn '\e]2;%~\a'; }
+_title_preexec() { print -Pn "\e]2;${1//\%/%%}\a"; }
+add-zsh-hook precmd  _title_precmd
+add-zsh-hook preexec _title_preexec
+
+# ── Directory & misc shortcuts (parity with oh-my-zsh's lib) ─────────
+alias ...='cd ../..'
+alias ....='cd ../../..'
+alias .....='cd ../../../..'
+alias grep='grep --color=auto'
 
 # Custom aliases
 source ~/.aliases
@@ -67,6 +88,13 @@ export PATH="$HOME/knowledge/bin:$PATH"
 
 # Smart cd (replaces z)
 eval "$(zoxide init zsh)"
+
+# zsh-autosuggestions — cloned by chezmoi (.chezmoiexternal.toml). Sourced
+# near the end so it wraps ZLE widgets after vi-mode and the custom
+# keybindings above.
+export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=60'   # darker suggestion color
+[ -f "$HOME/.zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh" ] && \
+  source "$HOME/.zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh"
 
 # Interactive tmux session picker (defined in ~/.tools/tmux-startup.sh).
 # Guard: interactive shell, real TTY, not already inside tmux, not VS Code's terminal.
