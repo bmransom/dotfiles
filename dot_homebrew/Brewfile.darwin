@@ -1,10 +1,6 @@
 # macOS-only (Homebrew casks don't exist on Linux)
 cask "font-hack-nerd-font"   # terminal/editor icons (was missing)
 cask "font-iosevka"
-cask "docker-desktop"
-cask "firefox"
-cask "iterm2"
 cask "maccy"
 cask "rectangle"
-cask "spotify"
 cask "stats"
