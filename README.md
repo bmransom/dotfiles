@@ -7,8 +7,7 @@ package list differs, set by a `personal` or `work` profile.
 ## Set up a new machine
 
 ```sh
-sh -c "$(curl -fsLS get.chezmoi.io)"   # install chezmoi
-chezmoi init --apply bmransom          # clone, prompt for profile, bootstrap, apply
+sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply bmransom
 ```
 
 The first run asks for the machine **profile** (`personal` or `work`), then:
