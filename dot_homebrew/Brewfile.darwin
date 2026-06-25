@@ -1,4 +1,10 @@
 # macOS-only (Homebrew casks don't exist on Linux)
+
+# Xcode management. Xcode.app itself is NOT a brew formula/cask — install it with
+# `xcodes install --latest` (interactive Apple ID auth), then `xcodes select`.
+brew "xcodes"
+brew "aria2"                 # parallel downloader xcodes uses for 3-5x faster Xcode downloads
+
 cask "font-hack-nerd-font"   # terminal/editor icons (was missing)
 cask "font-iosevka"
 cask "maccy"
