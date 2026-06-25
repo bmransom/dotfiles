@@ -9,6 +9,7 @@ brew "gh"           # github cli (also the git credential helper)
 brew "git-delta"
 brew "jq"
 brew "luarocks"
+brew "mise"         # runtime version manager (node, etc.; pairs with repo .tool-versions)
 brew "neovim"
 brew "openssl"
 brew "pyenv"

@@ -74,6 +74,11 @@ if command -v pyenv 1>/dev/null 2>&1; then
   eval "$(pyenv init --path)"
 fi
 
+# mise — runtime version manager (node, etc.; reads .tool-versions / mise.toml)
+if command -v mise 1>/dev/null 2>&1; then
+  eval "$(mise activate zsh)"
+fi
+
 # Prompt styling
 eval "$(starship init zsh)"
 
