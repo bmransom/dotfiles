@@ -1,4 +1,7 @@
-{{- $profile := promptStringOnce . "profile" "Machine profile (personal/work)" "personal" -}}
+{{- $profile := promptStringOnce . "profile" "Machine profile (personal/work)" -}}
+{{- if not (list "personal" "work" | has $profile) -}}
+{{-   fail (printf "profile must be personal or work, got %q" $profile) -}}
+{{- end -}}
 [data]
     profile = {{ $profile | quote }}
 
