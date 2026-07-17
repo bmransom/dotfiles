@@ -6,6 +6,6 @@ encrypt() {
 
     echo "Encrypting $from_filename to $to_filename"
 
-    openssl enc -aes-256-cbc -salt -in $from_filename -out $to_filename
+    openssl enc -aes-256-cbc -salt -in "$from_filename" -out "$to_filename"
 }
 
