@@ -1,7 +1,11 @@
+{{ if eq .profile "personal" -}}
 [includeIf "gitdir:~/"]
   path = .gitconfig-personal
-[includeIf "gitdir:~/dev/lm/"]
-  path = .gitconfig-work
+
+{{ end -}}
+# Machine-local identity and overrides (untracked; e.g. work identity on a work laptop)
+[include]
+  path = .gitconfig-local
 
 [credential]
   helper = osxkeychain
@@ -51,9 +55,11 @@
     commit-decoration-style = bold yellow box ul
     file-style = bold yellow ul
     file-decoration-style = none
+{{- if eq .profile "personal" }}
 [credential "https://github.com"]
-	helper = 
+	helper =
 	helper = !gh auth git-credential
 [credential "https://gist.github.com"]
-	helper = 
+	helper =
 	helper = !gh auth git-credential
+{{- end }}

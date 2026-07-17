@@ -1,1 +1,3 @@
-# Personal-machine-only packages. Add as you identify them.
+# Personal-machine-only packages.
+brew "gh"                    # github cli (also the git credential helper in .gitconfig)
+cask "maccy" if OS.mac?      # clipboard history — keep off work machines (persists secrets)

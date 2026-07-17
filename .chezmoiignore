@@ -24,3 +24,9 @@ README.md
 
 # test files live in the repo but are not deployed to $HOME
 tests
+
+{{ if eq .profile "work" -}}
+# personal-only files — never deployed on the work profile
+.gitconfig-personal
+.tools/tldr.sh
+{{ end -}}

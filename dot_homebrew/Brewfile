@@ -5,7 +5,6 @@ brew "cmake"
 brew "eza"          # modern `ls` (replaces deprecated exa)
 brew "fd"           # required by the neovim config
 brew "fzf"
-brew "gh"           # github cli (also the git credential helper)
 brew "git-delta"
 brew "jq"
 brew "luarocks"

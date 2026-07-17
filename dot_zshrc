@@ -101,6 +101,10 @@ export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=60'   # darker suggestion color
 [ -f "$HOME/.zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh" ] && \
   source "$HOME/.zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh"
 
+# Machine-local config (untracked; e.g. work-specific env, PATH, aliases on a work
+# laptop). Sourced before the tmux picker so its env reaches the tmux server.
+[ -f "$HOME/.zshrc.local" ] && source "$HOME/.zshrc.local"
+
 # Interactive tmux session picker (defined in ~/.tools/tmux-startup.sh).
 # Guard: interactive shell, real TTY, not already inside tmux, not VS Code's terminal.
 if [[ -o interactive ]] && [[ -t 1 ]] && [[ -z "$TMUX" ]] && [[ "$TERM_PROGRAM" != "vscode" ]]; then

@@ -8,6 +8,5 @@ brew "xcodegen"              # generates the goals iOS Xcode project from ios/pr
 
 cask "font-hack-nerd-font"   # terminal/editor icons (was missing)
 cask "font-iosevka"
-cask "maccy"
 cask "rectangle"
 cask "stats"
